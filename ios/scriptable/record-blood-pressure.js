@@ -56,6 +56,8 @@ lines.splice(endOfContent, 0, newLine)
 console.log(lines.join('\n'))
 noteBody = lines.join('\n')
 
+// Header & Format for the Markdown Table
+// |Date|Systolic|Diastolic|Pulse|Weight|Waist (cm)|Note|Position|Arm|
 // |2024-07-13|100|72|78||||Sitting||
 
 // Write the new table
