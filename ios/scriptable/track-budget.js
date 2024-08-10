@@ -2,6 +2,7 @@ const url = "http://10.8.0.101:8005/";
 const noteId = "bb9884492f0443f2adce400bd263254f"
 const endOfContentRegExp = /^id: /g
 const updatedTimeRegExp = /^updated_time: /g
+const weeklyBudget = 100.0
 
 // Read the existing table
 var req = new Request(url + '/' + noteId + '.md');
@@ -27,9 +28,18 @@ for(var i = lines.length - 1;i > 0;i--){
 }
 
 
-// TODO: Read the Cumulative if it exists.
-var lastLine = lines[endOfContent - 1]
-var fields = lastLine.split('|')
+// Read the Cumulative if it exists
+var fields = new Array()
+i = 0
+while (fields.length <= 1){
+  var lastLine = lines[endOfContent - i]
+  fields = lastLine.split('|')
+  i++
+  if(i>500){
+    throw new Error("Could not find the last line of the table.")
+  }
+}
+var endOfTable = endOfContent - i
 var cumSumAtStart = parseFloat(fields[3])
 var dtS = fields[1]
 var dtParts = dtS.split('-')
@@ -68,7 +78,7 @@ spentAmount = parseFloat(amountInput.textFieldValue(0))
 if(isNaN(spentAmount)){
   throw new Error("The amount is NaN. Stopping execution to avoid data corruption.");
 }
-cumSumAtEnd = cumSumAtStart - (currentWeek - previousRecordWeek) * 100 + spentAmount;
+cumSumAtEnd = cumSumAtStart - (currentWeek - previousRecordWeek) * weeklyBudget + spentAmount;
 if(isNaN(cumSumAtEnd)){
   throw new Error("Cumulative sum is NaN. Stopping execution to avoid data corruption.");
 }
@@ -82,7 +92,7 @@ lines[updatedTimeLineIndex] = updatedTimeLine
 // |-|-:|-:|-:|-|
 // |Date|Amount|Cumulative|Label|Notes|
 var newLine = '|' + yyyy + '-' + mm + '-' + dd + '|' + spentAmount + '|' + cumSumAtEnd + '| | |'
-lines.splice(endOfContent, 0, newLine)
+lines.splice(endOfTable + 2, 0, newLine)
 noteBody = lines.join('\n')
 
 // Write the new table
@@ -92,4 +102,10 @@ req.body = noteBody
 let content;
 content = await req.load()
 response = req.response;
+
+after = new Alert();
+after.title = 'Aftermath'
+after.message = 'You are now at: ' + cumSumAtEnd.toFixed(2) + '. Budget: ' + weeklyBudget.toFixed(2)
+after.addAction('OK, I\'ll be careful.')
+after.present()
 
