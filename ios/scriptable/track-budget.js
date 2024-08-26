@@ -46,7 +46,7 @@ var dtParts = dtS.split('-')
 var previousRecordDate = new Date(parseInt(dtParts[0]), parseInt(dtParts[1]-1), 
 parseInt(dtParts[2]));
 
-var firstDay = new Date(2000, 1, 1)
+var firstDay = new Date(2000, 0, 2)
 
 // Get year, month and day
 var today = new Date();
