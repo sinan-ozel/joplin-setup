@@ -46,6 +46,12 @@ var dtParts = dtS.split('-')
 var previousRecordDate = new Date(parseInt(dtParts[0]), parseInt(dtParts[1]-1), 
 parseInt(dtParts[2]));
 
+function getWeekNumber(date) {
+  let normalized = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  return Math.floor((normalized - firstDay) / 604800000); // ms in a week
+}
+
+
 var firstDay = new Date(2000, 0, 2)
 
 // Get year, month and day
@@ -59,8 +65,16 @@ if(previousRecordDate > today){
 }
 
 // Did we move forward a week?
-var previousRecordWeek = Math.floor((previousRecordDate - firstDay)/ 604800000);
-var currentWeek = Math.floor((today - firstDay)/ 604800000);
+var previousRecordWeek = getWeekNumber(previousRecordDate);
+var currentWeek = getWeekNumber(today);
+// var previousRecordWeek = Math.floor((previousRecordDate - firstDay)/ 604800000);// 
+// var currentWeek = Math.floor((today - firstDay)/ 604800000);
+// Sanity check
+var weekDelta = currentWeek - previousRecordWeek;
+if (weekDelta < 0) {
+  throw new Error("Time anomaly: week went backwards.");
+}
+
 
 // Present the basic data collection Alert
 amountInput = new Alert();
@@ -108,4 +122,3 @@ after.title = 'Aftermath'
 after.message = 'You are now at: ' + cumSumAtEnd.toFixed(2) + '. Budget: ' + weeklyBudget.toFixed(2)
 after.addAction('OK, I\'ll be careful.')
 after.present()
-
